@@ -1,0 +1,40 @@
+const API_URL = "http://localhost:3000/tasks";
+
+function getHeaders() {
+  const token = localStorage.getItem("token");
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function getTasks() {
+  const response = await fetch(API_URL, {
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Gagal mengambil task");
+  }
+
+  return response.json();
+}
+
+export async function createTask(task) {
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+
+  return response.json();
+}
+
+export async function deleteTask(id) {
+  await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+  });
+}
