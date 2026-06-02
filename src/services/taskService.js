@@ -24,17 +24,37 @@ export async function getTasks() {
 export async function createTask(task) {
   const response = await fetch(API_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
+    body: JSON.stringify(task),
+  });
+
+  const data = await response.json();
+
+  console.log("CREATE RESPONSE:", data);
+
+  return data;
+}
+
+export async function deleteTask(id) {
+  await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+}
+
+export async function updateTask(id, task) {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: getHeaders(),
     body: JSON.stringify(task),
   });
 
   return response.json();
 }
 
-export async function deleteTask(id) {
-  await fetch(`${API_URL}/${id}`, {
-    method: "DELETE",
+export async function toggleTask(id) {
+  await fetch(`${API_URL}/${id}/toggle`, {
+    method: "PATCH",
+    headers: getHeaders(),
   });
 }

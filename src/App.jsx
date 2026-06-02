@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import LoginForm from "./components/LoginForm";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import {
+  getTasks as getTasksService,
+  createTask,
+  deleteTask,
+  toggleTask,
+  updateTask,
+} from "./services/taskService";
+import { login as loginService } from "./services/authService";
 
 function App() {
   // Task State
@@ -30,29 +38,13 @@ function App() {
   }, [isLoggedIn]);
 
   async function getTasks() {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    return;
-  }
-
-  const response = await fetch(
-    "http://localhost:3000/tasks",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    try {
+      const data = await getTasksService();
+      setTasks(data);
+    } catch (error) {
+      console.error(error);
     }
-  );
-
-  if (!response.ok) {
-    return;
   }
-
-  const data = await response.json();
-
-  setTasks(data);
-}
 
   async function handleSubmit(e) {
   e.preventDefault();
@@ -60,23 +52,14 @@ function App() {
   setError("");
   setLoading(true);
 
-  const token = localStorage.getItem("token");
-
-  const response = await fetch("http://localhost:3000/tasks", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      title: title,
-      dueDate: dueDate,
-    }),
+  const data = await createTask({
+    title,
+    dueDate,
   });
 
-  const data = await response.json();
+  console.log(data);
 
-  if (!response.ok) {
+  if (!data.data) {
     setError(data.message);
     setLoading(false);
     return;
@@ -90,39 +73,19 @@ function App() {
 }
 
   async function handleDelete(id) {
-
-  const token = localStorage.getItem("token");
-
-    await fetch(`http://localhost:3000/tasks/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    await deleteTask(id);
     getTasks();
   }
 
   async function handleUpdate(id) {
   setError("");
 
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`http://localhost:3000/tasks/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      title: title,
-      dueDate: dueDate,
-    }),
+  const data = await updateTask(id, {
+    title,
+    dueDate,
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
+  if (!data.data) {
     setError(data.message);
     return;
   }
@@ -135,37 +98,17 @@ function App() {
 }
 
   async function handleToggle(id) {
-
-  const token = localStorage.getItem("token");
-
-  await fetch(`http://localhost:3000/tasks/${id}/toggle`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  getTasks();
-}
+    await toggleTask(id);
+    getTasks();
+  }
 
   async function handleLogin() {
-  const response = await fetch(
-    "http://localhost:3000/auth/login",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    }
+  const data = await loginService(
+    username,
+    password
   );
 
-  const data = await response.json();
-
-  if (!response.ok) {
+  if (!data.token) {
     setError(data.message);
     return;
   }
