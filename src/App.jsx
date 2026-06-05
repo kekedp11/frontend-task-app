@@ -37,21 +37,18 @@ function App() {
   );
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (!isLoggedIn) return;
+
+    const timeout = setTimeout(() => {
       getTasks(page, search);
-    }
+    }, 300);
+
+    return () => clearTimeout(timeout);
   }, [isLoggedIn, page, search]);
 
-  async function getTasks(
-    pageNumber = 1,
-    searchText = ""
-  ) {
+  async function getTasks(pageNumber = 1, searchText = "") {
     try {
-      const data = await getTasksService(
-        pageNumber,
-        searchText
-      );
-
+      const data = await getTasksService(pageNumber, searchText);
       setTasks(data);
     } catch (error) {
       console.error(error);

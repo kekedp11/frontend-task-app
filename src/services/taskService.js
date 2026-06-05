@@ -9,20 +9,15 @@ function getHeaders() {
   };
 }
 
-export async function getTasks(
-  page = 1,
-  search = ""
-) {
+const API_URL = "https://backend-task-app-b6va.onrender.com/tasks";
+
+export async function getTasks(page = 1, search = "") {
   const response = await fetch(
     `${API_URL}?page=${page}&limit=5&search=${search}`,
     {
       headers: getHeaders(),
     }
   );
-
-  if (!response.ok) {
-    throw new Error("Gagal mengambil task");
-  }
 
   return response.json();
 }
