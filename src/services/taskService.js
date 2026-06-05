@@ -9,10 +9,16 @@ function getHeaders() {
   };
 }
 
-export async function getTasks() {
-  const response = await fetch(API_URL, {
-    headers: getHeaders(),
-  });
+export async function getTasks(
+  page = 1,
+  search = ""
+) {
+  const response = await fetch(
+    `${API_URL}?page=${page}&limit=5&search=${search}`,
+    {
+      headers: getHeaders(),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Gagal mengambil task");

@@ -9,7 +9,10 @@ import {
   toggleTask,
   updateTask,
 } from "./services/taskService";
-import { login as loginService } from "./services/authService";
+import {
+  login as loginService,
+  register as registerService,
+} from "./services/authService";
 
 function App() {
   // Task State
@@ -18,6 +21,7 @@ function App() {
   const [editId, setEditId] = useState(null);
   const [dueDate, setDueDate] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   // UI State
   const [loading, setLoading] = useState(false);
@@ -27,19 +31,27 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
 
   useEffect(() => {
     if (isLoggedIn) {
-      getTasks();
+      getTasks(page, search);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, page, search]);
 
-  async function getTasks() {
+  async function getTasks(
+    pageNumber = 1,
+    searchText = ""
+  ) {
     try {
-      const data = await getTasksService();
+      const data = await getTasksService(
+        pageNumber,
+        searchText
+      );
+
       setTasks(data);
     } catch (error) {
       console.error(error);
@@ -122,6 +134,27 @@ function App() {
   alert("Login berhasil 🔥");
 }
 
+  async function handleRegister() {
+  setError("");
+
+  const data = await registerService(
+    username,
+    password
+  );
+
+  if (!data.data) {
+    setError(data.message);
+    return;
+  }
+
+  alert("Register berhasil 🎉");
+
+  setIsRegister(false);
+
+  setUsername("");
+  setPassword("");
+}
+
   function handleLogout() {
   localStorage.removeItem("token");
 
@@ -132,16 +165,12 @@ function App() {
   alert("Logout berhasil 👋");
   }
 
-  const filteredTasks = tasks.filter((task) =>
-  task.title.toLowerCase().includes(search.toLowerCase())
-);
-
 if (!isLoggedIn) {
   return (
     <div className="min-h-screen bg-gray-900 text-white flex justify-center items-center">
       <div className="w-full max-w-md bg-gray-800 p-6 rounded-2xl shadow-lg">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          Login
+          {isRegister ? "Register" : "Login"}
         </h1>
 
         {error && (
@@ -158,6 +187,9 @@ if (!isLoggedIn) {
           showPassword={showPassword}
           setShowPassword={setShowPassword}
           handleLogin={handleLogin}
+          handleRegister={handleRegister}
+          isRegister={isRegister}
+          setIsRegister={setIsRegister}
         />
       </div>
     </div>
@@ -201,18 +233,42 @@ if (!isLoggedIn) {
           type="text"
           placeholder="Cari task..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           className="w-full p-3 mb-4 rounded-lg bg-gray-700 outline-none"
         />
 
         <TaskList
-          tasks={filteredTasks}
+          tasks={tasks}
           handleToggle={handleToggle}
           handleDelete={handleDelete}
           setTitle={setTitle}
           setEditId={setEditId}
           setError={setError}
         />
+
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="text-sm font-medium">
+            Page {page}
+          </span>
+
+          <button
+            onClick={() => setPage(page + 1)}
+            className="px-3 py-1 bg-gray-200 rounded"
+          >
+            Next
+          </button>
+        </div>
 
       </div>
     </div>

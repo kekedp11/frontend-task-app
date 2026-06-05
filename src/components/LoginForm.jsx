@@ -6,12 +6,20 @@ function LoginForm({
   showPassword,
   setShowPassword,
   handleLogin,
+  handleRegister,
+  isRegister,
+  setIsRegister,
 }) {
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
+
+        if (isRegister) {
+        handleRegister();
+        } else {
         handleLogin();
+        }
       }}
       className="flex flex-col gap-2 mb-6"
     >
@@ -45,8 +53,20 @@ function LoginForm({
         type="submit"
         className="bg-green-500 p-3 rounded-lg hover:bg-green-600"
       >
-        Login
+        {isRegister ? "Register" : "Login"}
       </button>
+
+      <p className="text-center text-sm mt-2">
+        <button
+          type="button"
+          onClick={() => setIsRegister(!isRegister)}
+          className="text-blue-400 hover:underline"
+        >
+          {isRegister
+            ? "Sudah punya akun? Login"
+            : "Belum punya akun? Register"}
+        </button>
+      </p>
     </form>
   );
 }
