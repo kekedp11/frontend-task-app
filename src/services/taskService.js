@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/tasks";
+const API_URL = "https://backend-task-app-b6va.onrender.com/tasks";
 
 function getHeaders() {
   const token = localStorage.getItem("token");

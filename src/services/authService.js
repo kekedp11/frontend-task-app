@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/auth";
+const API_URL = "https://backend-task-app-b6va.onrender.com/auth";
 
 export async function login(username, password) {
   const response = await fetch(`${API_URL}/login`, {
